@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".BrightnessFragment"
+    android:layout_alignParentBottom="true"
+    android:background="@drawable/dialog_bg">
+
+    <TextView
+        android:id="@+id/brightness_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/brightness"
+        android:layout_marginStart="30dp"
+        android:textColor="@color/black"
+        android:textSize="21sp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        />
+    <TextView
+        android:id="@+id/brightness_kostil"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:layout_marginStart="30dp"
+        android:textColor="@color/white"
+        android:textSize="1dp"
+        android:layout_marginTop="10dp"
+        />
+
+    <LinearLayout
+        android:layout_below="@+id/brightness_name"
+        android:id="@+id/ethernet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        tools:ignore="UseCompoundDrawables"
+        android:layout_marginHorizontal="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="25dp">
+
+        <TextView
+            android:id="@+id/min"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/min"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            />
+
+        <SeekBar
+            android:id="@+id/brightness_seek_bar"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:progress="0"
+            android:thumbTint="@color/teal"
+            android:progressTint="@color/teal"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="15dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/max"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:layout_marginStart="15dp"/>
+    </LinearLayout>
+
+
+</RelativeLayout>
