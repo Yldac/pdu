@@ -9,7 +9,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import android.app.Application;
 import android.app.Dialog;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
@@ -28,8 +27,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -48,26 +45,17 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.btmonitor.adapter.BtConsts;
+
 import com.example.btmonitor.bluetooth.BtConnection;
-import com.example.btmonitor.bluetooth.ConnectThread;
-import com.example.btmonitor.bluetooth.RecieveThread;
 
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
 
 @RequiresApi(api = Build.VERSION_CODES.S)
 public class MainActivity extends AppCompatActivity implements View.OnTouchListener, GestureDetector.OnGestureListener {
-    private InputStream inputS;
-    Handler h;
-    final int RECEIVE_MESSAGE = 1;
-    private byte[] rBuffer;
     private BtConnection btConnection;
-    public RecieveThread recieveThread;
-    private InputStream vhodPotok;
     private TextView timerTime, krionLogo;
     private SeekBar timerSeekBar, brightnessSeekBar;
     private String ms, md, x, level, s, l = "5";
@@ -85,9 +73,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private Button buttonS, buttonPower, buttonD, buttonC, btn;
     private ImageButton buttonLiftUp, buttonLiftDown,buttonPlUp, buttonPlDown, buttonSendTimer, buttonBrightness;
     private GestureDetector mGestureDetector;
-    static final int STATE_MESSAGE_RECEIVED=5;
-    BluetoothSocket mSocket;
-
     @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility", "HandlerLeak"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,47 +81,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         init();
         checkPermissions();
         btOnStart();
-
-        //btConnection.receiveMessage("5");
-        //catchMessage();
-        //ArMessage();
-//        try {
-//            int size =
-//            btConnection.receiveMessage(rBuffer,0,size);
-//            l = "5";
-//            if (s.equals(l)){
-//                Toast.makeText(this, "Message:" + s, Toast.LENGTH_SHORT).show();
-//            }
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//        rBuffer = new byte[15];
-//            try {
-//                int size = inputS.read(rBuffer);
-//                String message = new String(rBuffer, 0, size);
-//                //Log.d("package:mine", "Message: "+ message);
-//                if (message.equals("5")){
-//                    Toast.makeText(this, "Arduino send:" + message, Toast.LENGTH_SHORT).show();
-//                }
-//            } catch (IOException ignored){
-//            }
-
-//        h = new Handler() {
-//            public void handleMessage (@NonNull android.os.Message msg){
-//                switch (msg.what) {
-//                    case RECEIVE_MESSAGE:
-//                    byte[] readBuf = (byte[]) msg.obj;
-//                    String strIncom = new String(readBuf, 0, msg.arg1);
-//                        Log.d("package:mine", "Nuka nahooy "+ strIncom);
-////                    if (strIncom.equals(l)) {
-////                        Toast.makeText(MainActivity.this, "lol" + strIncom, Toast.LENGTH_LONG).show();
-////                    }
-//                }
-//            }
-//        };
-
-
-
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
@@ -174,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         buttonPlUp.setEnabled(false);
         buttonSendTimer.setEnabled(false);
         buttonBrightness.setEnabled(false);
-
 
         timerSeekBar.setMax(360);
         timerSeekBar.setMin(60);
@@ -371,7 +314,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 disableAll();
                 enableBt();
             }
-            btConnection.connect();
         } else if (item.getItemId() == R.id.id_info) {
             showInfoDialog();
         }
@@ -512,9 +454,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 //        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 //        dialog.setContentView(R.layout.fragment_brightness);
 
-        ConnectThread.currentThread();
-        RecieveThread.currentThread();
-
         LayoutInflater layoutInflater = this.getLayoutInflater();
         View lol = layoutInflater.inflate(R.layout.fragment_brightness, null);
 
@@ -574,8 +513,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     // Инициализируем Адаптер
     private void init() {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
-        SharedPreferences pref = getSharedPreferences(BtConsts.MY_PREF, Context.MODE_PRIVATE);
+        btn = new Button(this);
         btConnection = new BtConnection(this);
+        btConnection.setReceivedTextDisplay(btn);
     }
     //Toast "Включите блютуз"
     private void customToast() {
