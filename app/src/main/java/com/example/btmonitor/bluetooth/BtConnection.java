@@ -12,6 +12,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -29,9 +30,9 @@ public class BtConnection {
     private BluetoothSocket socket;
     private InputStream inputStream;
     private OutputStream outputStream;
-    private Button displayButton;
+    private TextView textDisplay;
     public BtConnection(@NonNull Context context) {
-        this.displayButton = null;
+        this.textDisplay = null;
         try {
             SharedPreferences preferences = context.getSharedPreferences(BtConsts.MY_PREF,
                     Context.MODE_PRIVATE);
@@ -71,8 +72,8 @@ public class BtConnection {
                         int bytesRead = inputStream.read(readBuffer);
                         String message = new String (readBuffer, 0, bytesRead);
                         Log.d("package:mine", "Message: "+ message);
-                        if (displayButton != null)
-                            displayButton.setText(message);
+                        if (textDisplay != null)
+                            textDisplay.setText(message);
                     }
                     catch (IOException ignored) {
 
@@ -92,9 +93,9 @@ public class BtConnection {
         }
     }
 
-    public void setReceivedTextDisplay(Button displayButton)
+    public void setReceivedTextDisplay(TextView textDisplay)
     {
-        this.displayButton = displayButton;
+        this.textDisplay = textDisplay;
     }
 
     private void closeConnection() {

@@ -513,9 +513,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     // Инициализируем Адаптер
     private void init() {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
-        btn = new Button(this);
         btConnection = new BtConnection(this);
-        btConnection.setReceivedTextDisplay(btn);
+        btConnection.setReceivedTextDisplay(krionLogo);
     }
     //Toast "Включите блютуз"
     private void customToast() {
