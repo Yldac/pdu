@@ -7,13 +7,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -23,16 +17,20 @@ import com.example.btmonitor.adapter.BtConsts;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 
 public class BtConnection {
+    public interface OnMessageReceived {
+        void onMessageReceived(String message);
+    }
+
     public static final String UUID = "00001101-0000-1000-8000-00805F9B34FB";
     private BluetoothSocket socket;
     private InputStream inputStream;
     private OutputStream outputStream;
-    private TextView textDisplay;
+    private OnMessageReceived onMessageReceivedListener;
+
     public BtConnection(@NonNull Context context) {
-        this.textDisplay = null;
+        this.onMessageReceivedListener = null;
         try {
             SharedPreferences preferences = context.getSharedPreferences(BtConsts.MY_PREF,
                     Context.MODE_PRIVATE);
@@ -63,6 +61,10 @@ public class BtConnection {
         }
     }
 
+    public void setOnMessageReceivedListener(OnMessageReceived onMessageReceivedListener) {
+        this.onMessageReceivedListener = onMessageReceivedListener;
+    }
+
     private void startReceiveRoutine() {
         Runnable receiveRoutine = new Runnable() {
             public void run() {
@@ -72,8 +74,8 @@ public class BtConnection {
                         int bytesRead = inputStream.read(readBuffer);
                         String message = new String (readBuffer, 0, bytesRead);
                         Log.d("package:mine", "Message: "+ message);
-                        if (textDisplay != null)
-                            textDisplay.setText(message);
+                        if (onMessageReceivedListener != null)
+                            onMessageReceivedListener.onMessageReceived(message);
                     }
                     catch (IOException ignored) {
 
@@ -91,11 +93,6 @@ public class BtConnection {
         }
         catch (IOException ignored) {
         }
-    }
-
-    public void setReceivedTextDisplay(TextView textDisplay)
-    {
-        this.textDisplay = textDisplay;
     }
 
     private void closeConnection() {
