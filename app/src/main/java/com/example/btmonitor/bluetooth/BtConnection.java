@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -63,25 +64,25 @@ public class BtConnection {
     }
 
     private void startReceiveRoutine() {
-        Runnable receiveRoutine = new Runnable() {
-            public void run() {
-                byte[] readBuffer = new byte[1024];
-                while (true) {
-                    try {
-                        int bytesRead = inputStream.read(readBuffer);
-                        String message = new String (readBuffer, 0, bytesRead);
-                        Log.d("package:mine", "Message: "+ message);
-                        if (onMessageReceivedHandler != null)
-                            onMessageReceivedHandler.obtainMessage(0, message);
+        Runnable receiveRoutine = () -> {
+            byte[] readBuffer = new byte[1024];
+            while (true) {
+                try {
+                    int bytesRead = inputStream.read(readBuffer);
+                    String message = new String (readBuffer, 0, bytesRead);
+                    Log.d("package:mine", "Message: "+ message);
+                    if (onMessageReceivedHandler != null)
+                    {
+                        Message messageToMain;
+                        messageToMain = onMessageReceivedHandler.obtainMessage(0, message);
+                        onMessageReceivedHandler.sendMessage(messageToMain);
                     }
-                    catch (IOException ignored) {
+                }
+                catch (IOException ignored) {
 
-                    }
                 }
             }
         };
-        Thread receiveThread = new Thread(receiveRoutine);
-        receiveThread.start();
     }
 
     public void sendMessage(@NonNull String message) {

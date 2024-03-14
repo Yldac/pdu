@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private Button buttonS, buttonPower, buttonD, buttonC, btn;
     private ImageButton buttonLiftUp, buttonLiftDown,buttonPlUp, buttonPlDown, buttonSendTimer, buttonBrightness;
     private GestureDetector mGestureDetector;
+    private Handler handler;
     @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility", "HandlerLeak"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -514,9 +515,10 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private void init() {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         btConnection = new BtConnection(this);
-        Handler handler = new Handler(this.getMainLooper()) {
+        handler = new Handler(this.getMainLooper()) {
             public void handleMessage(@NonNull android.os.Message msg) {
-                krionLogo.setText(msg.obj.toString());
+                if (msg.obj != null)
+                    krionLogo.setText(msg.obj.toString());
             }
         };
         btConnection.setOnMessageReceivedHandler(handler);
