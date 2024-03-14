@@ -514,13 +514,12 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private void init() {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         btConnection = new BtConnection(this);
-        BtConnection.OnMessageReceived onMessageReceived = new BtConnection.OnMessageReceived() {
-            @Override
-            public void onMessageReceived(String message) {
-                krionLogo.setText(message);
+        Handler handler = new Handler(this.getMainLooper()) {
+            public void handleMessage(@NonNull android.os.Message msg) {
+                krionLogo.setText(msg.obj.toString());
             }
         };
-        btConnection.setOnMessageReceivedListener(onMessageReceived);
+        btConnection.setOnMessageReceivedHandler(handler);
     }
     //Toast "Включите блютуз"
     private void customToast() {

@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -19,18 +20,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class BtConnection {
-    public interface OnMessageReceived {
-        void onMessageReceived(String message);
-    }
-
     public static final String UUID = "00001101-0000-1000-8000-00805F9B34FB";
     private BluetoothSocket socket;
     private InputStream inputStream;
     private OutputStream outputStream;
-    private OnMessageReceived onMessageReceivedListener;
+    private Handler onMessageReceivedHandler;
 
     public BtConnection(@NonNull Context context) {
-        this.onMessageReceivedListener = null;
+        this.onMessageReceivedHandler = null;
         try {
             SharedPreferences preferences = context.getSharedPreferences(BtConsts.MY_PREF,
                     Context.MODE_PRIVATE);
@@ -61,8 +58,8 @@ public class BtConnection {
         }
     }
 
-    public void setOnMessageReceivedListener(OnMessageReceived onMessageReceivedListener) {
-        this.onMessageReceivedListener = onMessageReceivedListener;
+    public void setOnMessageReceivedHandler(Handler onMessageReceivedHandler) {
+        this.onMessageReceivedHandler = onMessageReceivedHandler;
     }
 
     private void startReceiveRoutine() {
@@ -74,8 +71,8 @@ public class BtConnection {
                         int bytesRead = inputStream.read(readBuffer);
                         String message = new String (readBuffer, 0, bytesRead);
                         Log.d("package:mine", "Message: "+ message);
-                        if (onMessageReceivedListener != null)
-                            onMessageReceivedListener.onMessageReceived(message);
+                        if (onMessageReceivedHandler != null)
+                            onMessageReceivedHandler.obtainMessage(0, message);
                     }
                     catch (IOException ignored) {
 
