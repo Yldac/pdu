@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private BtConnection btConnection;
     private TextView timerTime, krionLogo;
     private SeekBar timerSeekBar, brightnessSeekBar;
-    private String ms, md, x, level, s, l = "5";
+    private String ms, md, x, level;
     private MenuItem menuItem;
     private BluetoothAdapter btAdapter;
     private static final String[] PERMISSION_LOCATION = {
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private Button buttonS, buttonPower, buttonD, buttonC, btn;
     private ImageButton buttonLiftUp, buttonLiftDown,buttonPlUp, buttonPlDown, buttonSendTimer, buttonBrightness;
     private GestureDetector mGestureDetector;
-    private Handler handler;
+
     @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility", "HandlerLeak"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +108,17 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         buttonLiftUp.setOnTouchListener(this);
         buttonLiftDown = findViewById(R.id.btn_lift_down);
         buttonLiftDown.setOnTouchListener(this);
+
+        Handler handler = new Handler(this.getMainLooper()) {
+            public void handleMessage(@NonNull android.os.Message msg) {
+                if (msg.obj.toString().equals("s"))
+                    buttonS.setText("stop");
+                else if (msg.obj.toString().equals("d"))
+                    buttonS.setText("Start");
+
+            }
+        };
+        btConnection.setOnMessageReceivedHandler(handler);
 
         buttonPower.setEnabled(false);
         buttonS.setEnabled(false);
@@ -315,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 disableAll();
                 enableBt();
             }
+            btConnection.connect();
         } else if (item.getItemId() == R.id.id_info) {
             showInfoDialog();
         }
@@ -515,13 +527,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private void init() {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         btConnection = new BtConnection(this);
-        handler = new Handler(this.getMainLooper()) {
-            public void handleMessage(@NonNull android.os.Message msg) {
-                if (msg.obj != null)
-                    krionLogo.setText(msg.obj.toString());
-            }
-        };
-        btConnection.setOnMessageReceivedHandler(handler);
+
     }
     //Toast "Включите блютуз"
     private void customToast() {

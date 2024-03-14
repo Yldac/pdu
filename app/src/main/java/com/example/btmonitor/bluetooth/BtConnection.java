@@ -26,13 +26,21 @@ public class BtConnection {
     private InputStream inputStream;
     private OutputStream outputStream;
     private Handler onMessageReceivedHandler;
+    private final SharedPreferences preferences;
+    private final BluetoothAdapter btAdapter;
+    private final Context context;
 
     public BtConnection(@NonNull Context context) {
         this.onMessageReceivedHandler = null;
+        this.context = context;
+        preferences = context.getSharedPreferences(BtConsts.MY_PREF,
+                Context.MODE_PRIVATE);
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
+
+    }
+
+    public void connect(){
         try {
-            SharedPreferences preferences = context.getSharedPreferences(BtConsts.MY_PREF,
-                    Context.MODE_PRIVATE);
-            BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
             String remouteMac = preferences.getString(BtConsts.MAC_KEY, "");
             if (!btAdapter.isEnabled() || remouteMac.isEmpty())
                 return;
@@ -51,10 +59,8 @@ public class BtConnection {
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
             startReceiveRoutine();
-            Log.d("package:mine", "connected");
         }
         catch (IOException e) {
-            Log.d("package:mine", "not connected");
             closeConnection();
         }
     }
@@ -65,24 +71,23 @@ public class BtConnection {
 
     private void startReceiveRoutine() {
         Runnable receiveRoutine = () -> {
-            byte[] readBuffer = new byte[1024];
+            byte[] readBuffer = new byte[10];
             while (true) {
                 try {
                     int bytesRead = inputStream.read(readBuffer);
-                    String message = new String (readBuffer, 0, bytesRead);
-                    Log.d("package:mine", "Message: "+ message);
-                    if (onMessageReceivedHandler != null)
-                    {
-                        Message messageToMain;
-                        messageToMain = onMessageReceivedHandler.obtainMessage(0, message);
-                        onMessageReceivedHandler.sendMessage(messageToMain);
-                    }
+                    String message = new String (readBuffer, 0, bytesRead).trim();
+                        if (onMessageReceivedHandler != null) {
+                            Message messageToMain;
+                            messageToMain = onMessageReceivedHandler.obtainMessage(0, message);
+                            onMessageReceivedHandler.sendMessage(messageToMain);
+                        }
                 }
                 catch (IOException ignored) {
-
                 }
             }
         };
+        Thread receive = new Thread(receiveRoutine);
+        receive.start();
     }
 
     public void sendMessage(@NonNull String message) {
